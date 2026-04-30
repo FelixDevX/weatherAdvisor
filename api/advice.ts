@@ -21,14 +21,28 @@ export default async function handler(req: any, res: any) {
     const prompt = `Act as a luxury travel advisor. Given the weather in ${city} (${country}):
 Temp: ${temp}°C, Weather: ${description}.
 Provide concise, elegant travel advice including what to wear, top 2 activities (indoor/outdoor based on rain), and a "vibe" description. Keep it under 120 words. Format with simple markdown headers. Focus on high-end luxury tone.`;
+    const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: prompt,
-    });
+    let lastError: any = null;
+    for (const model of models) {
+      try {
+        const response = await ai.models.generateContent({
+          model,
+          contents: prompt,
+        });
 
-    return res.status(200).json({ advice: response.text || 'Unable to generate advice.' });
-  } catch (error) {
-    return res.status(500).json({ error: 'Unable to get AI advice at this time.' });
+        if (response.text) {
+          return res.status(200).json({ advice: response.text });
+        }
+      } catch (err) {
+        lastError = err;
+      }
+    }
+
+    const message = lastError?.message || 'Unable to get AI advice at this time.';
+    return res.status(500).json({ error: `Gemini request failed: ${message}` });
+  } catch (error: any) {
+    const message = error?.message || 'Unable to get AI advice at this time.';
+    return res.status(500).json({ error: `Gemini setup failed: ${message}` });
   }
 }
