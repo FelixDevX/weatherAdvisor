@@ -4,6 +4,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 
+// Load local overrides first, then fall back to .env.
+dotenv.config({ path: '.env.local' });
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -24,8 +26,14 @@ app.get('/api/weather', async (req, res) => {
     return res.status(400).json({ error: 'City is required' });
   }
 
-  if (!OPENWEATHER_API_KEY || OPENWEATHER_API_KEY === '165601b3a9c605e417cf98335f8ddda3' || OPENWEATHER_API_KEY === 'MY_OPENWEATHER_API_KEY') {
-     // Note: Allowing the user provided key if it looks fixed or the default
+  if (
+    !OPENWEATHER_API_KEY ||
+    OPENWEATHER_API_KEY === 'YOUR_OPENWEATHER_API_KEY' ||
+    OPENWEATHER_API_KEY === 'MY_OPENWEATHER_API_KEY'
+  ) {
+    return res.status(500).json({
+      error: 'OPENWEATHER_API_KEY is missing or invalid in .env.local',
+    });
   }
 
   try {
