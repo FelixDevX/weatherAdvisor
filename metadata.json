@@ -1,0 +1,12 @@
+{
+  "name": "Nimbus Travel Advisor",
+  "description": "An elegant, Apple-inspired weather and travel recommendation engine with glassmorphic UI and smart AI advice.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "Weather Forecasting",
+    "AI Travel Advice",
+    "City Comparison"
+  ]
+}
