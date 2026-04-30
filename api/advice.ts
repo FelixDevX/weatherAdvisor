@@ -21,7 +21,8 @@ export default async function handler(req: any, res: any) {
     const prompt = `Act as a luxury travel advisor. Given the weather in ${city} (${country}):
 Temp: ${temp}°C, Weather: ${description}.
 Provide concise, elegant travel advice including what to wear, top 2 activities (indoor/outdoor based on rain), and a "vibe" description. Keep it under 120 words. Format with simple markdown headers. Focus on high-end luxury tone.`;
-    const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+    // Keep fallbacks to currently supported model IDs for generateContent.
+    const models = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash'];
 
     let lastError: any = null;
     for (const model of models) {
