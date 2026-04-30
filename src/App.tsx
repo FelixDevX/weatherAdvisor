@@ -24,11 +24,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
 import { format } from 'date-fns';
-import { GoogleGenAI } from "@google/genai";
 import { cn } from './lib/utils';
 import { WeatherData, FavoriteCity } from './types';
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 const SUGGESTED_CITIES = [
   { name: 'Tokyo', country: 'JP', image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&q=80&w=400' },
@@ -100,19 +97,16 @@ export default function App() {
   const generateAdvice = async (data: WeatherData) => {
     setAdviceLoading(true);
     try {
-      const prompt = `Act as a luxury travel advisor. Given the weather in ${data.current.name} (${data.current.sys.country}): 
-      Temp: ${data.current.main.temp}°C, Weather: ${data.current.weather[0].description}.
-      Provide concise, elegant travel advice including what to wear, top 2 activities (indoor/outdoor based on rain), and a "vibe" description. Keep it under 120 words. Format with simple markdown headers. Focus on high-end luxury tone.`;
-
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: prompt,
+      const { data: adviceData } = await axios.post('/api/advice', {
+        city: data.current.name,
+        country: data.current.sys.country,
+        temp: data.current.main.temp,
+        description: data.current.weather[0].description,
       });
 
-      setAdvice(response.text || 'Unable to generate advice.');
-    } catch (err) {
-      console.error('Advice error:', err);
-      setAdvice('Unable to get AI advice at this time.');
+      setAdvice(adviceData?.advice || 'Unable to generate advice.');
+    } catch (err: any) {
+      setAdvice(err.response?.data?.error || 'Unable to get AI advice at this time.');
     } finally {
       setAdviceLoading(false);
     }
